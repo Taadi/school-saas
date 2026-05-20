@@ -1,0 +1,30 @@
+# ----------------------------
+# Backend (Laravel / PHP)
+# ----------------------------
+/backend/vendor/
+backend/node_modules/
+backend/.env
+backend/.DS_Store
+backend/storage/*.log
+backend/storage/framework/cache/*
+backend/storage/framework/sessions/*
+backend/storage/framework/views/*
+
+# Composer
+/backend/composer.lock
+
+# ----------------------------
+# Frontend (Node / Vue / React / Vite)
+/frontend/node_modules/
+/frontend/dist/
+/frontend/.env
+/frontend/.DS_Store
+/frontend/package-lock.json
+
+# ----------------------------
+# OS / IDE
+# ----------------------------
+*.DS_Store
+.vscode/
+.idea/
+*.log
