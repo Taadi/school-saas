@@ -1,7 +1,9 @@
 import { Fragment, useEffect, useState } from 'react';
-import { Save, Settings } from 'lucide-react';
+import { ImageIcon, Save, Settings } from 'lucide-react';
 import { toast } from 'sonner';
 import { ApiError } from '@/lib/api';
+import { LogoUploadField } from '@/components/branding/logo-upload-field';
+import { useBranding } from '@/providers/branding-provider';
 import { PlatformSettings, saasAdminApi } from '@/services/saas-admin';
 import { Container } from '@/components/common/container';
 import {
@@ -20,27 +22,31 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 
 export function PlatformSettingsPage() {
+  const { refresh: refreshBranding } = useBranding();
   const [form, setForm] = useState<PlatformSettings>({
     platform_name: '',
     support_email: '',
     default_trial_days: 14,
     maintenance_message: '',
   });
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [logoBusy, setLogoBusy] = useState(false);
 
   useEffect(() => {
     setLoading(true);
     saasAdminApi
       .getSettings()
-      .then((r) =>
+      .then((r) => {
         setForm({
           platform_name: r.data.platform_name ?? '',
           support_email: r.data.support_email ?? '',
           default_trial_days: r.data.default_trial_days ?? 14,
           maintenance_message: r.data.maintenance_message ?? '',
-        }),
-      )
+        });
+        setLogoUrl(r.data.logo_url ?? null);
+      })
       .catch((err) =>
         toast.error(
           err instanceof ApiError ? err.message : 'Could not load settings.',
@@ -70,6 +76,34 @@ export function PlatformSettingsPage() {
     }
   }
 
+  async function uploadLogo(file: File) {
+    try {
+      setLogoBusy(true);
+      const r = await saasAdminApi.uploadPlatformLogo(file);
+      setLogoUrl(r.logo_url);
+      await refreshBranding();
+      toast.success('Platform logo updated.');
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : 'Upload failed.');
+    } finally {
+      setLogoBusy(false);
+    }
+  }
+
+  async function removeLogo() {
+    try {
+      setLogoBusy(true);
+      await saasAdminApi.removePlatformLogo();
+      setLogoUrl(null);
+      await refreshBranding();
+      toast.success('Platform logo removed.');
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : 'Could not remove logo.');
+    } finally {
+      setLogoBusy(false);
+    }
+  }
+
   return (
     <Fragment>
       <Container>
@@ -81,8 +115,30 @@ export function PlatformSettingsPage() {
         </Toolbar>
       </Container>
 
-      <Container>
-        <Card className="max-w-3xl">
+      <Container className="grid gap-6 max-w-3xl">
+        <Card>
+          <CardHeader>
+            <CardHeading>
+              <span className="font-medium flex items-center gap-2">
+                <ImageIcon className="size-4 text-muted-foreground" />
+                Platform logo
+              </span>
+            </CardHeading>
+          </CardHeader>
+          <CardContent>
+            <LogoUploadField
+              label="Default logo for all schools"
+              url={logoUrl}
+              busy={logoBusy}
+              disabled={loading}
+              hint="Used in the app sidebar and header. Schools can override with their own logo; otherwise this is shown."
+              onPick={uploadLogo}
+              onClear={removeLogo}
+            />
+          </CardContent>
+        </Card>
+
+        <Card>
           <CardHeader>
             <CardHeading>
               <span className="font-medium flex items-center gap-2">

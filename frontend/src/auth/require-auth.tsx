@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { ScreenLoader } from '@/components/common/screen-loader';
+import { BrandingProvider } from '@/providers/branding-provider';
 import { useAuth } from './context/auth-context';
 
 /**
@@ -46,5 +47,9 @@ export const RequireAuth = () => {
   }
 
   // If authenticated, render child routes
-  return <Outlet />;
+  return (
+    <BrandingProvider>
+      <Outlet />
+    </BrandingProvider>
+  );
 };

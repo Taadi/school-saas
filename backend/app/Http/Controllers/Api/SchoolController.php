@@ -8,6 +8,7 @@ use App\Models\Payment;
 use App\Models\School;
 use App\Models\Student;
 use App\Models\User;
+use App\Support\BrandingHelper;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -204,7 +205,9 @@ class SchoolController extends Controller
         }
 
         return response()->json([
-            'school' => $school,
+            'school' => array_merge($school->toArray(), [
+                'logo_url' => BrandingHelper::schoolLogoUrl($school),
+            ]),
             'stats' => [
                 'students' => Student::count(),
                 'teachers' => User::where('role', User::ROLE_TEACHER)->count(),

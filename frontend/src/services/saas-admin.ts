@@ -94,6 +94,7 @@ export interface PlatformSettings {
   support_email?: string | null;
   default_trial_days?: number | null;
   maintenance_message?: string | null;
+  logo_url?: string | null;
 }
 
 export const saasAdminApi = {
@@ -153,6 +154,16 @@ export const saasAdminApi = {
 
   updateSettings(payload: PlatformSettings): Promise<{ data: PlatformSettings }> {
     return api.put('/admin/platform-settings', payload);
+  },
+
+  uploadPlatformLogo(file: File): Promise<{ logo_url: string }> {
+    const fd = new FormData();
+    fd.append('file', file);
+    return api.upload('/admin/platform-settings/logo', fd);
+  },
+
+  removePlatformLogo(): Promise<void> {
+    return api.delete('/admin/platform-settings/logo');
   },
 };
 

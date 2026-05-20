@@ -1,6 +1,6 @@
 import { ChevronFirst } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { toAbsoluteUrl } from '@/lib/helpers';
+import { AppLogo } from '@/components/branding/app-logo';
 import { cn } from '@/lib/utils';
 import { useSettings } from '@/providers/settings-provider';
 import { Button } from '@/components/ui/button';
@@ -19,27 +19,27 @@ export function SidebarHeader() {
     <div className="sidebar-header hidden lg:flex items-center relative justify-between px-3 lg:px-6 shrink-0">
       <Link to="/">
         <div className="dark:hidden">
-          <img
-            src={toAbsoluteUrl('/media/app/default-logo.svg')}
+          <AppLogo
+            variant="default"
             className="default-logo h-[22px] max-w-none"
-            alt="Default Logo"
+            alt="Logo"
           />
-          <img
-            src={toAbsoluteUrl('/media/app/mini-logo.svg')}
+          <AppLogo
+            variant="mini"
             className="small-logo h-[22px] max-w-none"
-            alt="Mini Logo"
+            alt="Logo"
           />
         </div>
         <div className="hidden dark:block">
-          <img
-            src={toAbsoluteUrl('/media/app/default-logo-dark.svg')}
+          <AppLogo
+            variant="dark"
             className="default-logo h-[22px] max-w-none"
-            alt="Default Dark Logo"
+            alt="Logo"
           />
-          <img
-            src={toAbsoluteUrl('/media/app/mini-logo.svg')}
+          <AppLogo
+            variant="mini"
             className="small-logo h-[22px] max-w-none"
-            alt="Mini Logo"
+            alt="Logo"
           />
         </div>
       </Link>

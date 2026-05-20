@@ -6,6 +6,7 @@ import { UserDropdownMenu } from '@/partials/topbar/user-dropdown-menu';
 import { Bell, Menu, MessageCircleMore, Search } from 'lucide-react';
 import { useLocation } from 'react-router';
 import { Link } from 'react-router-dom';
+import { AppLogo } from '@/components/branding/app-logo';
 import { toAbsoluteUrl } from '@/lib/helpers';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -46,11 +47,7 @@ export function Header() {
         {/* Mobile sidebar trigger + mini logo */}
         <div className="flex gap-1 lg:hidden items-center gap-2.5">
           <Link to="/" className="shrink-0">
-            <img
-              src={toAbsoluteUrl('/media/app/mini-logo.svg')}
-              className="h-[25px] w-full"
-              alt="mini-logo"
-            />
+            <AppLogo variant="mini" className="h-[25px] w-full" alt="Logo" />
           </Link>
           <div className="flex items-center">
             {mobileMode && (

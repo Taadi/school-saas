@@ -10,6 +10,7 @@ import {
 import { CollegeReportSetupPage } from '@/pages/college-report';
 import { EvaluationEntryPage, EvaluationRubricsPage } from '@/pages/evaluations';
 import { PromotionManagerPage } from '@/pages/promotions';
+import { SchoolBrandingPage } from '@/pages/school';
 import { SchoolDashboardPage } from '@/pages/dashboards/school';
 import {
   AccountSettingsPage,
@@ -69,6 +70,7 @@ export function AppRoutingSetup() {
           <Route path="/academic/subjects" element={<SubjectsPage />} />
           <Route path="/academic/sessions" element={<AcademicSessionsPage />} />
           <Route path="/academic/promotions" element={<PromotionManagerPage />} />
+          <Route path="/school/branding" element={<SchoolBrandingPage />} />
 
           {/* Tenant: results */}
           <Route path="/results" element={<ResultsListPage />} />
