@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\FeeStructureController;
 use App\Http\Controllers\Api\InvoiceController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\PlatformAdminController;
+use App\Http\Controllers\Api\BrandingController;
 use App\Http\Controllers\Api\PlatformSettingsController;
 use App\Http\Controllers\Api\EvaluationRubricController;
 use App\Http\Controllers\Api\EvaluationResponseController;
@@ -50,6 +51,7 @@ Route::middleware(['auth:sanctum', 'tenant'])->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
 
     Route::get('/school', [SchoolController::class, 'current']);
+    Route::get('/branding', [BrandingController::class, 'show']);
 
     // Role-aware dashboard summary
     Route::get('/dashboard/summary', [DashboardController::class, 'summary']);
@@ -247,6 +249,9 @@ Route::middleware(['auth:sanctum', 'tenant'])->group(function () {
         // Payments — admin records and can void.
         Route::post('/payments', [PaymentController::class, 'store']);
         Route::delete('/payments/{payment}', [PaymentController::class, 'destroy']);
+
+        Route::post('/school/logo', [BrandingController::class, 'uploadSchoolLogo']);
+        Route::delete('/school/logo', [BrandingController::class, 'removeSchoolLogo']);
     });
 
     // Super Admin only — platform control plane
@@ -264,5 +269,7 @@ Route::middleware(['auth:sanctum', 'tenant'])->group(function () {
 
         Route::get('/admin/platform-settings', [PlatformSettingsController::class, 'show']);
         Route::put('/admin/platform-settings', [PlatformSettingsController::class, 'update']);
+        Route::post('/admin/platform-settings/logo', [BrandingController::class, 'uploadPlatformLogo']);
+        Route::delete('/admin/platform-settings/logo', [BrandingController::class, 'removePlatformLogo']);
     });
 });

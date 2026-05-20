@@ -6,6 +6,7 @@ import {
   CircleDollarSign,
   ClipboardList,
   GraduationCap,
+  ImageIcon,
   Layers,
   LayoutGrid,
   PencilLine,
@@ -91,6 +92,12 @@ export const MENU_SIDEBAR: MenuConfig = [
     title: 'Promotion Manager',
     icon: ArrowUpRight,
     path: '/academic/promotions',
+    roles: ['super_admin', 'school_admin'],
+  },
+  {
+    title: 'School Branding',
+    icon: ImageIcon,
+    path: '/school/branding',
     roles: ['super_admin', 'school_admin'],
   },
 

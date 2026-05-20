@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\PlatformSetting;
+use App\Support\BrandingHelper;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -13,7 +14,9 @@ class PlatformSettingsController extends Controller
     {
         $row = PlatformSetting::singleton();
 
-        return response()->json(['data' => $row->data ?? []]);
+        return response()->json([
+            'data' => $this->present($row),
+        ]);
     }
 
     public function update(Request $request): JsonResponse
@@ -29,6 +32,17 @@ class PlatformSettingsController extends Controller
         $merged = array_merge($row->data ?? [], $data);
         $row->update(['data' => $merged]);
 
-        return response()->json(['data' => $row->fresh()->data]);
+        return response()->json([
+            'data' => $this->present($row->fresh()),
+        ]);
+    }
+
+    protected function present(PlatformSetting $row): array
+    {
+        $data = $row->data ?? [];
+
+        return array_merge($data, [
+            'logo_url' => BrandingHelper::platformLogoUrl($row),
+        ]);
     }
 }
