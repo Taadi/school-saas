@@ -11,9 +11,14 @@ use App\Support\TenantContext;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
+use Throwable;
 
 class BrandingController extends Controller
 {
+    /** Avoid Laravel's `image` rule — it requires the GD extension on the server. */
+    private const LOGO_FILE_RULES = ['required', 'file', 'mimes:jpeg,jpg,png,gif,webp', 'max:2048'];
+
     public function show(Request $request): JsonResponse
     {
         $user = $request->user();
@@ -39,30 +44,39 @@ class BrandingController extends Controller
 
     public function uploadPlatformLogo(Request $request): JsonResponse
     {
-        $request->validate([
-            'file' => ['required', 'file', 'image', 'max:2048'],
-        ]);
+        try {
+            $request->validate(['file' => self::LOGO_FILE_RULES]);
 
-        $row = PlatformSetting::singleton();
-        $disk = Storage::disk('public');
-        $old = BrandingHelper::platformLogoPath($row);
+            $row = PlatformSetting::singleton();
+            $disk = Storage::disk('public');
+            $disk->makeDirectory('platform/branding');
 
-        $path = $request->file('file')->store('platform/branding', 'public');
+            $old = BrandingHelper::platformLogoPath($row);
+            $path = $request->file('file')->store('platform/branding', 'public');
 
-        if ($old && $disk->exists($old)) {
-            $disk->delete($old);
+            if ($old && $disk->exists($old)) {
+                $disk->delete($old);
+            }
+
+            $data = array_merge($row->data ?? [], ['logo_path' => $path]);
+            $row->update(['data' => $data]);
+
+            return response()->json([
+                'logo_path' => $path,
+                'logo_url' => BrandingHelper::storageUrl($path),
+                'data' => $row->fresh()->data,
+            ]);
+        } catch (ValidationException $e) {
+            throw $e;
+        } catch (Throwable $e) {
+            report($e);
+
+            return response()->json([
+                'message' => config('app.debug')
+                    ? 'Logo upload failed: '.$e->getMessage()
+                    : 'Logo upload failed. Check server storage permissions and run php artisan storage:link.',
+            ], 500);
         }
-
-        $data = array_merge($row->data ?? [], ['logo_path' => $path]);
-        $row->update(['data' => $data]);
-
-        $url = BrandingHelper::storageUrl($path);
-
-        return response()->json([
-            'logo_path' => $path,
-            'logo_url' => $url,
-            'data' => $row->fresh()->data,
-        ]);
     }
 
     public function removePlatformLogo(): JsonResponse
@@ -84,32 +98,39 @@ class BrandingController extends Controller
 
     public function uploadSchoolLogo(Request $request): JsonResponse
     {
-        $request->validate([
-            'file' => ['required', 'file', 'image', 'max:2048'],
-        ]);
+        try {
+            $request->validate(['file' => self::LOGO_FILE_RULES]);
 
-        $school = $this->resolveSchool($request, true);
-        $disk = Storage::disk('public');
-        $old = $school->logo_path;
+            $school = $this->resolveSchool($request, true);
+            $disk = Storage::disk('public');
+            $dir = "tenants/{$school->id}/branding";
+            $disk->makeDirectory($dir);
 
-        $path = $request->file('file')->store(
-            "tenants/{$school->id}/branding",
-            'public',
-        );
+            $old = $school->logo_path;
+            $path = $request->file('file')->store($dir, 'public');
 
-        if ($old && $disk->exists($old)) {
-            $disk->delete($old);
+            if ($old && $disk->exists($old)) {
+                $disk->delete($old);
+            }
+
+            $school->update(['logo_path' => $path]);
+
+            return response()->json([
+                'logo_path' => $path,
+                'logo_url' => BrandingHelper::storageUrl($path),
+                'school' => $school->fresh(),
+            ]);
+        } catch (ValidationException $e) {
+            throw $e;
+        } catch (Throwable $e) {
+            report($e);
+
+            return response()->json([
+                'message' => config('app.debug')
+                    ? 'Logo upload failed: '.$e->getMessage()
+                    : 'Logo upload failed. Check server storage permissions and run php artisan storage:link.',
+            ], 500);
         }
-
-        $school->update(['logo_path' => $path]);
-
-        $url = BrandingHelper::storageUrl($path);
-
-        return response()->json([
-            'logo_path' => $path,
-            'logo_url' => $url,
-            'school' => $school->fresh(),
-        ]);
     }
 
     public function removeSchoolLogo(Request $request): JsonResponse

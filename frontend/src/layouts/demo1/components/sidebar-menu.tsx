@@ -35,7 +35,13 @@ function filterMenu(
   for (const item of items) {
     if (!isItemAllowed(item, role)) continue;
     if (isImpersonating && item.hideWhenImpersonating) continue;
-    if (!isImpersonating && item.onlyWhenImpersonating) continue;
+    if (
+      item.onlyWhenImpersonating &&
+      role === 'super_admin' &&
+      !isImpersonating
+    ) {
+      continue;
+    }
     if (item.children) {
       const children = filterMenu(item.children, role, isImpersonating);
       if (children.length === 0 && !item.path) continue;

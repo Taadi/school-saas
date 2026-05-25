@@ -26,8 +26,8 @@ export interface MenuItem {
    */
   hideWhenImpersonating?: boolean;
   /**
-   * Only show this item while a super-admin is impersonating (e.g. nothing —
-   * reserved for future use).
+   * For super_admin only: show while impersonating a school. School admins and
+   * teachers are unaffected and always see the item when their role matches.
    */
   onlyWhenImpersonating?: boolean;
 }

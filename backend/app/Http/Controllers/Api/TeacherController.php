@@ -95,7 +95,7 @@ class TeacherController extends Controller
     public function uploadPhoto(Request $request, Teacher $teacher): JsonResponse
     {
         $request->validate([
-            'photo' => ['required', 'image', 'max:2048'], // 2MB
+            'photo' => ['required', 'file', 'mimes:jpeg,jpg,png,gif,webp', 'max:2048'],
         ]);
 
         $disk = Storage::disk('public');

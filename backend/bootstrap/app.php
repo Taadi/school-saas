@@ -2,9 +2,12 @@
 
 use App\Http\Middleware\EnsureRole;
 use App\Http\Middleware\EnsureTenant;
+use App\Support\CorsHeaders;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -33,6 +36,40 @@ return Application::configure(basePath: dirname(__DIR__))
         });
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        $exceptions->respond(function (Response $response, \Throwable $e, Request $request) {
+            if ($request->is('api/*') || $request->is('sanctum/*')) {
+                return CorsHeaders::apply($request, $response);
+            }
+
+            return $response;
+        });
+
+        $exceptions->render(function (\Throwable $e, Request $request) {
+            if (! $request->is('api/*') && ! $request->expectsJson()) {
+                return null;
+            }
+
+            if ($e instanceof \Illuminate\Validation\ValidationException) {
+                return null;
+            }
+
+            if ($e instanceof \Illuminate\Auth\AuthenticationException) {
+                return null;
+            }
+
+            if ($e instanceof \Symfony\Component\HttpKernel\Exception\HttpExceptionInterface) {
+                return null;
+            }
+
+            report($e);
+
+            $message = config('app.debug')
+                ? $e->getMessage()
+                : 'Server error. Please try again or contact support.';
+
+            return response()->json(['message' => $message], 500);
+        });
+
         $exceptions->render(function (\Illuminate\Validation\ValidationException $e, $request) {
             if ($request->expectsJson() || $request->is('api/*')) {
                 return response()->json([

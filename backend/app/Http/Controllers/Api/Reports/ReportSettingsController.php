@@ -88,7 +88,7 @@ class ReportSettingsController extends Controller
     {
         $request->validate([
             'kind' => ['required', 'in:seal,signature'],
-            'file' => ['required', 'file', 'image', 'max:2048'],
+            'file' => ['required', 'file', 'mimes:jpeg,jpg,png,gif,webp', 'max:2048'],
         ]);
 
         $tenantId = $request->user()->tenant_id ?? app(\App\Support\TenantContext::class)->id();
